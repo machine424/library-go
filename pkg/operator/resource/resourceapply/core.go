@@ -287,6 +287,9 @@ func ApplyConfigMapImproved(ctx context.Context, client coreclientv1.ConfigMapsG
 	caBundleInjected := required.Labels["config.openshift.io/inject-trusted-cabundle"] == "true"
 	_, newCABundleRequired := required.Data["ca-bundle.crt"]
 
+	serviceCAInjected := required.Labels["service.beta.openshift.io/inject-cabundle"] == "true"
+	_, newServiceCARequired := required.Data["service-ca.crt"]
+
 	var modifiedKeys []string
 	for existingCopyKey, existingCopyValue := range existingCopy.Data {
 		// if we're injecting a ca-bundle and the required isn't forcing the value, then don't use the value of existing
@@ -295,6 +298,12 @@ func ApplyConfigMapImproved(ctx context.Context, client coreclientv1.ConfigMapsG
 		if caBundleInjected && !newCABundleRequired && existingCopyKey == "ca-bundle.crt" {
 			continue
 		}
+
+		// XXX
+		if serviceCAInjected && !newServiceCARequired && existingCopyKey == "service-ca.crt" {
+			continue
+		}
+
 		if requiredValue, ok := required.Data[existingCopyKey]; !ok || (existingCopyValue != requiredValue) {
 			modifiedKeys = append(modifiedKeys, "data."+existingCopyKey)
 		}
