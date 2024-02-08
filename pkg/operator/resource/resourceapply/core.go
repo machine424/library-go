@@ -287,7 +287,7 @@ func ApplyConfigMapImproved(ctx context.Context, client coreclientv1.ConfigMapsG
 	caBundleInjected := required.Labels["config.openshift.io/inject-trusted-cabundle"] == "true"
 	_, newCABundleRequired := required.Data["ca-bundle.crt"]
 
-	serviceCAInjected := required.Labels["service.beta.openshift.io/inject-cabundle"] == "true"
+	serviceCAInjected := required.Annotations["service.beta.openshift.io/inject-cabundle"] == "true"
 	_, newServiceCARequired := required.Data["service-ca.crt"]
 
 	var modifiedKeys []string
